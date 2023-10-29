@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.conf import settings
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 from django.db import models
 from uuid import uuid4
+from .validators import validate_file_size
 
 
 class Promotion(models.Model):
@@ -42,12 +43,19 @@ class Product(models.Model):
     class Meta:
         ordering = ['title']
     
-
+# When we use ImageField there is no need to validate the format 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='store/images')
+    image = models.ImageField(
+        upload_to='store/images'
+    ,validators=[validate_file_size]) 
+# Instead, if we use the model FileField, we should add a validator to check the file extension. 
 
-
+# class ProductImage(models.Model):
+#     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+#     image = models.FileField(
+#         upload_to='store/images'
+#     ,validators=[FileExtensionValidator(allowed_extensions=['pdf'])])
 
 class Customer(models.Model):
     MEMBERSHIP_BRONZE = 'B'
